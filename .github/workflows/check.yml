@@ -58,7 +58,7 @@ jobs:
         if: env.need_update == 1
         run: |
           sudo apt-get update
-          sudo apt-get install -y liblz4-tool simg2img f2fs-tools ccache clang-15 clang++-15 llvm-15
+          sudo apt-get install -y liblz4-tool android-sdk-libsparse-utils f2fs-tools ccache clang-15 clang++-15 llvm-15
 
       - name: Build tools
         if: env.need_update == 1
