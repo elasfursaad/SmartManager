@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # Copyright (C) 2024 saadelasfur
-
-date=$(date +%Y%m%d)
 
 VERIFY_7Z()
 {
@@ -28,53 +26,40 @@ VERIFY_7Z()
     fi
 }
 
-EXTRACT_INSTALLER()
-{
-    local dir_name=$1
-    local zip_name="Installers/Installer.zip"
-    
-    if [ -f "$zip_name" ]; then
-        7z x "$zip_name" -o"$dir_name"
-        echo "Extracted $zip_name to $dir_name"
-        
-        cp "Installers/$dir_name/updater-script" "$dir_name/META-INF/com/google/android/updater-script"
-        echo "Copied updater-script to $dir_name/META-INF/com/google/android/"
-    else
-        echo "$zip_name does not exist."
-    fi
-}
-
 MAKE_ZIP()
 {
-    local dir_name=$1
-    local zip_name="${dir_name}-$date.zip"
+    local SOURCE_DIR
+    local OUTPUT_ZIP
+    local INSTALLER_ZIP
     
-    cd "$dir_name" || exit 1
-    7z a -tzip -mx=5 "$zip_name" -x!'version' *
-    mv "$zip_name" "$output_dir"
-    echo "$zip_name has been moved to $output_dir"
+    SOURCE_DIR=$1
+    OUTPUT_ZIP="${SOURCE_DIR}-$(date +%Y%m%d).zip"
+    INSTALLER_ZIP="Installers/Installer.zip"
+    
+    7z x "$INSTALLER_ZIP" -o"$SOURCE_DIR"
+    cat "Installers/$SOURCE_DIR/updater-script" > "$SOURCE_DIR/META-INF/com/google/android/updater-script"
+    cd "$SOURCE_DIR"
+    find . -exec touch -a -c -m -d "2008-12-31 17:00:00 +0200" {} +
+    7z a -tzip -mx=5 "$OUTPUT_ZIP" -x!"version" *
+    mv -f "$OUTPUT_ZIP" "$HOME_DIR/$OUTPUT_ZIP"
+    echo "$OUTPUT_ZIP has been moved to $HOME_DIR"
     rm -rf META-INF
     cd ..
 }
 
-read -p "Provide the directory where you want to move the ZIP files: " output_dir
-
-if [ ! -d "$output_dir" ]; then
-    echo "Directory $output_dir does not exist. Creating it now..."
-    mkdir -p "$output_dir"
-fi
-
+echo ""
 echo "Verifying 7z (7-Zip)..."
 VERIFY_7Z
 
+echo ""
 echo "Making SmartManagerCN zip..."
-EXTRACT_INSTALLER "SmartManagerCN"
 MAKE_ZIP "SmartManagerCN"
 
+echo ""
 echo "Making StockDeviceCare zip..."
-EXTRACT_INSTALLER "StockDeviceCare"
 MAKE_ZIP "StockDeviceCare"
 
+echo ""
 echo "Build finished, exiting..."
-sleep 5
+sleep 3
 exit 0
