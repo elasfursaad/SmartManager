@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - model: "SM-F9560"
+          - model: "SM-S9110"
             csc: "CHC"
             dir: "SmartManagerCN"
-          - model: "SM-F956B"
+          - model: "SM-S911B"
             csc: "EUX"
             dir: "StockDeviceCare"
 
@@ -92,10 +92,10 @@ jobs:
       - name: Fetch firmware
         if: env.need_update == 1
         run: |
-          if [[ "${{ matrix.model }}" == "SM-F9560" ]]; then
-              imei="357881150001008"
+          if [[ "${{ matrix.model }}" == "SM-S9110" ]]; then
+              imei="350448737216793"
           else
-              imei="351451340598895"
+              imei="352404911234563"
           fi
           samfirm -m ${{ matrix.model }} -r ${{ matrix.csc }} -i $imei
 
